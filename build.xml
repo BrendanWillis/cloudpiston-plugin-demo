@@ -1,0 +1,173 @@
+<project name="MyProject" default="deploy" basedir=".">
+
+    <!-- ========================================================= -->
+    <!-- PROJECT PATHS -->
+    <!-- ========================================================= -->
+
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+
+    <!-- Final plugin jars -->
+    <property name="jar.file" value="${build.dir}/nx-plugin.jar"/>
+    <property name="jar.cpfile" value="${build.dir}/cp-plugin.jar"/>
+
+    <!-- ========================================================= -->
+    <!-- VM / DEPLOYMENT SETTINGS -->
+    <!-- ========================================================= -->
+
+    <property name="vm.user" value="brend"/>
+    <property name="vm.host" value="192.168.56.101"/>
+    <property name="vm.deploy.dir" value="/home/brend"/>
+
+    <property name="cloudpiston.final.dir" value="/usr/cloudpiston/loader"/>
+
+    <!-- Windows SSH key path -->
+    <property name="identity.file" value="C:/Users/brend/.ssh/id_ed25519"/>
+
+    <!-- ========================================================= -->
+    <!-- LIBRARIES -->
+    <!-- ========================================================= -->
+
+    <path id="build.classpath">
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- ========================================================= -->
+    <!-- CLEAN -->
+    <!-- ========================================================= -->
+
+    <target name="clean">
+
+        <echo message="Cleaning previous build files..."/>
+
+        <delete dir="${build.dir}"/>
+
+    </target>
+
+    <!-- ========================================================= -->
+    <!-- COMPILE -->
+    <!-- ========================================================= -->
+
+    <target name="compile" depends="clean">
+
+        <echo message="Compiling Java source as Java 8..."/>
+
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${classes.dir}"/>
+
+        <!-- Copy plugin config files -->
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.plugin"/>
+            </fileset>
+        </copy>
+
+        <!-- Compile Java -->
+        <javac
+                srcdir="${src.dir}"
+                destdir="${classes.dir}"
+                includeantruntime="false"
+                source="1.8"
+                target="1.8"
+                debug="true"
+                encoding="UTF-8">
+
+            <classpath refid="build.classpath"/>
+
+        </javac>
+
+    </target>
+
+    <!-- ========================================================= -->
+    <!-- BUILD JARS -->
+    <!-- ========================================================= -->
+
+    <target name="jar" depends="compile">
+
+        <echo message="Building cp-plugin.jar..."/>
+
+        <!-- CloudPiston plugin jar -->
+        <jar destfile="${jar.cpfile}">
+
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0"/>
+            </manifest>
+
+            <fileset dir="${classes.dir}">
+                <include name="**/*.class"/>
+                <include name="**/*.plugin"/>
+            </fileset>
+
+        </jar>
+
+        <echo message="Building nx-plugin.jar..."/>
+
+        <!-- Final wrapper jar -->
+        <jar destfile="${jar.file}">
+
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0"/>
+            </manifest>
+
+            <fileset dir="${build.dir}">
+                <include name="cp-plugin.jar"/>
+            </fileset>
+
+        </jar>
+
+    </target>
+
+    <!-- ========================================================= -->
+    <!-- DEPLOY -->
+    <!-- ========================================================= -->
+
+    <target name="deploy" depends="jar">
+
+        <echo message="Copying nx-plugin.jar to Fedora VM..."/>
+
+        <!-- SCP upload -->
+        <exec executable="scp" failonerror="true">
+
+            <arg value="-i"/>
+            <arg value="${identity.file}"/>
+
+            <arg value="-o"/>
+            <arg value="BatchMode=yes"/>
+
+            <arg value="-o"/>
+            <arg value="StrictHostKeyChecking=no"/>
+
+            <arg value="${jar.file}"/>
+
+            <arg value="${vm.user}@${vm.host}:${vm.deploy.dir}/nx-plugin.jar"/>
+
+        </exec>
+
+        <echo message="Deploying plugin into CloudPiston loader..."/>
+
+        <!-- SSH remote commands -->
+        <exec executable="ssh" failonerror="true">
+
+            <arg value="-i"/>
+            <arg value="${identity.file}"/>
+
+            <arg value="-o"/>
+            <arg value="BatchMode=yes"/>
+
+            <arg value="-o"/>
+            <arg value="StrictHostKeyChecking=no"/>
+
+            <arg value="${vm.user}@${vm.host}"/>
+
+            <arg value="sudo -n mv ${vm.deploy.dir}/nx-plugin.jar ${cloudpiston.final.dir}/nx-plugin.jar &amp;&amp; sudo -n chown cloudpiston:cloudpiston ${cloudpiston.final.dir}/nx-plugin.jar &amp;&amp; sudo -n chmod 644 ${cloudpiston.final.dir}/nx-plugin.jar &amp;&amp; sudo -n service cloudpiston restart"/>
+
+        </exec>
+
+        <echo message="Deploy complete."/>
+
+    </target>
+
+</project>

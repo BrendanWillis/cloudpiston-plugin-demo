@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="nx-plugin-api">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/nx-plugin-api.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
