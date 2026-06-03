@@ -62,6 +62,7 @@
         <copy todir="${classes.dir}">
             <fileset dir="${src.dir}">
                 <include name="**/*.plugin"/>
+                <include name="scriptures/**/*.epub"/>
             </fileset>
         </copy>
 
@@ -76,6 +77,7 @@
                 encoding="UTF-8">
 
             <classpath refid="build.classpath"/>
+
 
         </javac>
 
@@ -99,6 +101,7 @@
             <fileset dir="${classes.dir}">
                 <include name="**/*.class"/>
                 <include name="**/*.plugin"/>
+                <include name="scriptures/**/*.epub"/>
             </fileset>
 
         </jar>

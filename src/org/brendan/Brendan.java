@@ -14,6 +14,11 @@ public class Brendan extends Plugin {
 
         int items = getSafeItemCount(payload.get("experimentItems"));
 
+        ScriptureSearch scriptureSearch =
+                new ScriptureSearch(controller);
+
+        scriptureSearch.testResource();
+
         String requestSize;
 
         if (items >= 1000) {
@@ -141,49 +146,49 @@ public class Brendan extends Plugin {
     private PacketDataList additionalInfo(PacketDataList datalist, Data data, int num)
             throws WorkflowException {
 
-        String age = data.get("age");
-        String birthDate = data.get("birthDate");
-        String address = data.get("address");
-        String city = data.get("city");
-        String state = data.get("state");
-        String ssn = data.get("ssn");
-        String phoneNumber = data.get("phoneNumber");
-        String zipCode = data.get("zipCode");
-        String email = data.get("email");
+        String age = data.get("selectedAge");
+        String birthDate = data.get("selectedBirthDate");
+        String address = data.get("selectedAddress");
+        String city = data.get("selectedCity");
+        String state = data.get("selectedState");
+        String ssn = data.get("selectedSSN");
+        String phoneNumber = data.get("selectedPhone");
+        String zipCode = data.get("selectedZipCode");
+        String email = data.get("selectedEmail");
 
-        if (age != null) {
+        if ("Yes".equals(age)) {
             addAge(datalist, num);
         }
 
-        if (birthDate != null) {
-            addBirthDate(datalist, num, age != null);
+        if ("Yes".equals(birthDate)) {
+            addBirthDate(datalist, num, "Yes".equals(age));
         }
 
-        if (address != null) {
+        if ("Yes".equals(address)) {
             addAddress(datalist, num);
         }
 
-        if (city != null) {
+        if ("Yes".equals(city)) {
             addCity(datalist, num);
         }
 
-        if (state != null) {
+        if ("Yes".equals(state)) {
             addState(datalist, num);
         }
 
-        if (ssn != null) {
+        if ("Yes".equals(ssn)) {
             addSsn(datalist, num);
         }
 
-        if (phoneNumber != null) {
+        if ("Yes".equals(phoneNumber)) {
             addPhoneNumber(datalist, data, num);
         }
 
-        if (zipCode != null) {
+        if ("Yes".equals(zipCode)) {
             addZipCode(datalist, num);
         }
 
-        if (email != null) {
+        if ("Yes".equals(email)) {
             addEmail(datalist, data, num);
         }
 
@@ -375,13 +380,14 @@ public class Brendan extends Plugin {
 
             for (int i = 0; i < num; i++) {
 
-                String newEmail =
-                        userEmail.replace("@", "+" + i + "@");
+                String m = userEmail;
+                m = m.replace("@", "+" + i + "@");
 
-                datalist.getRecord(i)
-                        .setDataValue("email", newEmail);
+                datalist.getRecord(i).setDataValue("email", m);
+
             }
         }
+
     }
 
     private int getRandomDayForMonth(int month) {
