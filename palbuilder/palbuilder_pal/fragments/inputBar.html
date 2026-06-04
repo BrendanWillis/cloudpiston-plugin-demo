@@ -1,0 +1,89 @@
+<div style="width:770px; padding:30px; margin-left:auto; margin-right:auto; margin-top: 30px; border: 1px solid #d1d1d3; border-radius: 15px; background-color:#f8f8f9" xmlns:c="contractpal">
+    <div class="navbar-form navbar-left">
+        <div class="form-group">
+            Please enter the number of names you would like generated (1-500): &#160; &#160; &#160; &#160;
+            <input name="items" style="width:200px" type="text" class="form-control" placeholder="e.g. 356"/>
+            &#160;
+            <br/><br/>
+            
+        </div>
+    </div>
+    <div class="form-group">
+        Additional information to be generated:
+        <table style="width:80%; margin-left:auto; margin-right:auto">
+            <tr>
+                <td style="width:25%">
+                    <label class="checkbox-inline">
+                        <input name="gender" type="checkbox"/>Gender
+                    </label>
+                </td>
+                <td style="width:25%">
+                    <label class="checkbox-inline">
+                        <input name="age" type="checkbox"/>Age
+                    </label> 
+                </td>
+                <td style="width:25%">
+                    <label class="checkbox-inline">
+                        <input name="birthDate" type="checkbox"/>Birth Date
+                    </label>  
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="address" type="checkbox"/>Address
+                    </label>
+                </td>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="city" type="checkbox"/>City
+                    </label> 
+                </td>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="state" type="checkbox"/>State
+                    </label>  
+                </td>
+                
+            </tr>
+            <tr>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="ssn" type="checkbox"/>SSN
+                    </label>
+                </td>
+                <td style="width:25%">
+                    <label class="checkbox-inline">
+                        <input name="phoneNumber" type="checkbox"/>Telephone Number<br/><input type="text" name="phones" value=""/><br/><small>comma separated list</small>
+                    </label>
+                </td>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="zipCode" type="checkbox"/>Zip Code
+                    </label>
+                </td>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="showDebugInfo" type="checkbox"/>Show Debug Info
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="checkbox-inline">
+                        <input name="email" type="checkbox"/>Email
+                    </label>
+                </td>
+            </tr>
+        </table>
+        <br/>
+        <input type="button" class="btn btn-info" value="Select All Options" onclick="                document.getElementsByName('gender')[0].checked = true;                document.getElementsByName('age')[0].checked = true;                document.getElementsByName('birthDate')[0].checked = true;                document.getElementsByName('address')[0].checked = true;                document.getElementsByName('city')[0].checked = true;                document.getElementsByName('state')[0].checked = true;                document.getElementsByName('ssn')[0].checked = true;                document.getElementsByName('phoneNumber')[0].checked = true;                document.getElementsByName('zipCode')[0].checked = true;                document.getElementsByName('showDebugInfo')[0].checked = true;                document.getElementsByName('email')[0].checked = true;                "/>
+        
+        &#160;
+        
+        <c:button style="float:right" class="btn btn-default" value="Submit" action="submit"/>
+        <c:button style="float:right" class="btn btn-default" value="Submit 2" action="submit2"/>
+        <c:button class="btn btn-success" value="Go to Scripture Search" action="showScriptureSearch"/>
+
+    </div>
+</div>

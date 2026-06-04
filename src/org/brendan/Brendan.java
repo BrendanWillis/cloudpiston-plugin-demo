@@ -17,7 +17,9 @@ public class Brendan extends Plugin {
         ScriptureSearch scriptureSearch =
                 new ScriptureSearch(controller);
 
-        scriptureSearch.testResource();
+//        scriptureSearch.testResource();
+//        scriptureSearch.listXhtmlFiles();
+        scriptureSearch.searchWord("faith", 10);
 
         String requestSize;
 

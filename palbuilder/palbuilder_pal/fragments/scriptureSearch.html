@@ -1,0 +1,34 @@
+<div xmlns:c="contractpal" style="width:770px; padding:30px; margin-left:auto; margin-right:auto; margin-top:30px; border:1px solid #d1d1d3; border-radius:15px; background-color:#f8f8f9">
+
+    <h2>Scripture Search</h2>
+
+    <div class="form-group">
+        <label>Search Word:</label>
+        <input name="scriptureSearchWord" value="${scriptureSearchWord}" style="width:250px" type="text" class="form-control" placeholder="e.g. faith"/>    
+           </div>
+
+    <div class="form-group">
+        <label>Max Results:</label>
+        <input name="scriptureMaxResults" value="${scriptureMaxResults}" style="width:100px" type="text" class="form-control" placeholder="10"/>
+           </div>
+
+    <hr/>
+
+    <h4>Optional Proximity Search</h4>
+
+    <div class="form-group">
+        <label>Second Word:</label>
+        <input name="scriptureSecondWord" value="${scriptureSecondWord}" style="width:250px" type="text" class="form-control" placeholder="e.g. John"/>
+           </div>
+
+    <div class="form-group">
+        <label>Distance:</label>
+        <input name="scriptureDistance" value="${scriptureDistance}" style="width:100px" type="text" class="form-control" placeholder="3"/>
+           </div>
+
+    <br/>
+
+    <c:button class="btn btn-primary" value="Search Scriptures" action="searchScriptures"/>
+    <c:button class="btn btn-default" value="Back to Random Generator" action="startOver"/>
+
+</div>
