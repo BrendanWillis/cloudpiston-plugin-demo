@@ -5,6 +5,7 @@ import com.nxlight.framework.pal.workflow.common.WorkflowException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -13,7 +14,7 @@ public class ScriptureSearch {
     private static final String EPUB_PATH =
             "/scriptures/standard-works-complete-epub-eng.epub";
 
-    private CommonController controller;
+    private final CommonController controller;
 
     public ScriptureSearch(CommonController controller) {
         this.controller = controller;
@@ -80,7 +81,7 @@ public class ScriptureSearch {
         StringBuilder builder = new StringBuilder();
 
         while ((length = inputStream.read(buffer)) != -1) {
-            builder.append(new String(buffer, 0, length, "UTF-8"));
+            builder.append(new String(buffer, 0, length, StandardCharsets.UTF_16));
         }
 
         return builder.toString();
@@ -115,7 +116,7 @@ public class ScriptureSearch {
                     String lowerContent = content.toLowerCase();
 
                     if (lowerContent.contains(lowerSearchTerm)) {
-                        controller.debug("MATCH FOUND: " + fileName);
+                        controller.debug("MATCH FOUND: " + fileName + "for search term :" + searchTerm);
                         matches++;
                     }
 
@@ -132,5 +133,8 @@ public class ScriptureSearch {
         } catch (IOException e) {
             throw new WorkflowException("Error searching EPUB file", e);
         }
+    }
+    public void searchProximity(String firstWord, String secondWord, int distance, int  maxResults) throws WorkflowException {
+        controller.debug("PROXIMITY SEARCH: " + firstWord + "/" + secondWord + "/" + distance);
     }
 }

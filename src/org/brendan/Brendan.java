@@ -19,7 +19,37 @@ public class Brendan extends Plugin {
 
 //        scriptureSearch.testResource();
 //        scriptureSearch.listXhtmlFiles();
-        scriptureSearch.searchWord("faith", 10);
+//        scriptureSearch.searchWord("faith", 10);
+        String searchWord = payload.get("scriptureSearchWord");
+        String maxResultsText = payload.get("scriptureMaxResults");
+
+        String secondWord = payload.get("scriptureSecondWord");
+        String distanceText = payload.get("scriptureDistance");
+
+        int maxResults = 10;
+
+        try {
+            maxResults = Integer.parseInt(maxResultsText);
+        }
+        catch (Exception e) {
+            maxResults = 10;
+        }
+
+        int distance = 0;
+        try {
+            distance = Integer.parseInt(distanceText);
+        }
+        catch (Exception e) {
+            distance = 0;
+        }
+        if (searchWord != null && searchWord.length()> 0) {
+            if (secondWord != null && secondWord.length() > 0) {
+
+                scriptureSearch.searchProximity( searchWord, secondWord, distance, maxResults);
+            } else {
+                scriptureSearch.searchWord(searchWord, maxResults);
+            }
+        }
 
         String requestSize;
 
@@ -37,6 +67,8 @@ public class Brendan extends Plugin {
         controller.debug("Plugin Health Check: Online");
         controller.debug("Items received by plugin: " + items);
         controller.debug("Request classification: " + requestSize);
+        controller.debug("Second word = " + secondWord);
+        controller.debug("Distance = " + distance);
 
         long javaStart = System.currentTimeMillis();
         if (payload.getData().getDefaultBoolean("old",true))
