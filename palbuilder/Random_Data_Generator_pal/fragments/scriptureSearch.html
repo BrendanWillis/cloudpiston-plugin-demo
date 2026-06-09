@@ -1,0 +1,106 @@
+<div xmlns:c="contractpal" style="width:770px;             padding:30px;             margin-left:auto;             margin-right:auto;             margin-top:30px;             border:1px solid #d1d1d3;             border-radius:15px;             background-color:#f8f8f9">
+
+    <h2>Scripture Search</h2>
+
+    <p>Enter a word to search for in the scriptures.</p>
+
+    <div class="form-group">
+        <label>Search Word:</label>
+        <input name="scriptureSearchWord" value="${scriptureSearchWord}" style="width:250px" type="text" class="form-control" placeholder="e.g. faith"/>
+    </div>
+
+    <div class="form-group">
+        <label>Max Results:</label>
+        <input name="scriptureMaxResults" value="${scriptureMaxResults}" style="width:100px" type="text" class="form-control" placeholder="10"/>
+    </div>
+
+    <hr/>
+
+    <h4>Optional Proximity Search</h4>
+
+    <div class="form-group">
+        <label>Second Word:</label>
+        <input name="scriptureSecondWord" value="${scriptureSecondWord}" style="width:250px" type="text" class="form-control" placeholder="e.g. John"/>
+    </div>
+
+    <div class="form-group">
+        <label>Distance:</label>
+        <input name="scriptureDistance" value="${scriptureDistance}" style="width:100px" type="text" class="form-control" placeholder="3"/>
+    </div>
+
+    <br/>
+
+    <c:button class="btn btn-primary" value="Search Scriptures" action="searchScriptures"/>
+
+    <c:button class="btn btn-default" value="Back to Random Generator" action="startOver"/>
+
+    <c:div test="${scriptureSearchWord ne null}">
+        <hr/>
+
+        <h3>Search Results</h3>
+        
+        <p>
+            <strong>${scriptureResultCount}</strong>
+            result(s) found.
+        </p>
+
+        <c:div test="${isProximitySearch eq 'Yes'}">
+            <p>
+                Search:
+                <strong>${scriptureSearchWord}</strong>
+                within
+                <strong>${scriptureDistance}</strong>
+                words of
+                <strong>${scriptureSecondWord}</strong>
+            </p>
+        </c:div>
+
+        <c:div test="${isProximitySearch ne 'Yes'}">
+            <p>
+                Search Word:
+                <strong>${scriptureSearchWord}</strong>
+            </p>
+        </c:div>
+
+        <c:list name="scriptureResults" id="result">
+
+            <div style="border:1px solid #cccccc;                         padding:10px;                         margin-bottom:10px;                         background-color:#ffffff;">
+
+                <h4>${result.reference}</h4>
+
+                <strong>File:</strong>
+                ${result.filename}
+                
+                <br/>
+                
+                <strong>File Only:</strong>
+                ${result.fileOnly}
+                
+                <br/><br/>
+
+                <c:div test="${isProximitySearch eq 'Yes'}">
+                    <p>
+                        <strong>Matched Words:</strong>
+                        <mark>${scriptureSearchWord}</mark>
+                        and
+                        <mark>${scriptureSecondWord}</mark>
+                    </p>
+                </c:div>
+
+                <c:div test="${isProximitySearch ne 'Yes'}">
+                    <p>
+                        <strong>Matched Word:</strong>
+                        <mark>${scriptureSearchWord}</mark>
+                    </p>
+                </c:div>
+
+                <strong>Match:</strong>
+
+                <p>${result.matchText}</p>
+
+            </div>
+
+        </c:list>
+    </c:div>
+
+</div>

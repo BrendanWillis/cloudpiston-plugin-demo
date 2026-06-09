@@ -20,11 +20,13 @@ public class Brendan extends Plugin {
 //        scriptureSearch.testResource();
 //        scriptureSearch.listXhtmlFiles();
 //        scriptureSearch.searchWord("faith", 10);
-        String searchWord = payload.get("scriptureSearchWord");
-        String maxResultsText = payload.get("scriptureMaxResults");
+        Data data = payload.getData();
 
-        String secondWord = payload.get("scriptureSecondWord");
-        String distanceText = payload.get("scriptureDistance");
+        String searchWord = data.get("scriptureSearchWord");
+        String maxResultsText = data.get("scriptureMaxResults");
+
+        String secondWord = data.get("scriptureSecondWord");
+        String distanceText = data.get("scriptureDistance");
 
         int maxResults = 10;
 
@@ -42,13 +44,34 @@ public class Brendan extends Plugin {
         catch (Exception e) {
             distance = 0;
         }
-        if (searchWord != null && searchWord.length()> 0) {
-            if (secondWord != null && secondWord.length() > 0) {
+        if (searchWord != null && searchWord.trim().length() > 0) {
 
-                scriptureSearch.searchProximity( searchWord, secondWord, distance, maxResults);
+            DataList scriptureResults;
+
+            boolean isProximitySearch =
+                    secondWord != null && secondWord.trim().length() > 0;
+
+            if (isProximitySearch) {
+                scriptureResults =
+                        scriptureSearch.searchProximity(searchWord, secondWord, distance, maxResults);
             } else {
-                scriptureSearch.searchWord(searchWord, maxResults);
+                scriptureResults =
+                        scriptureSearch.searchWord(searchWord, maxResults);
             }
+
+            payload.addDataList(scriptureResults);
+
+            payload.set("scriptureResultCount",
+                    String.valueOf(scriptureResults.getRecordCount()));
+
+            payload.set("scriptureSearchWord", searchWord);
+            payload.set("scriptureSecondWord", secondWord);
+            payload.set("scriptureDistance", String.valueOf(distance));
+            payload.set("scriptureMaxResults", String.valueOf(maxResults));
+            payload.set("isProximitySearch", isProximitySearch ? "Yes" : "No");
+
+
+            return "Scripture search completed.";
         }
 
         String requestSize;

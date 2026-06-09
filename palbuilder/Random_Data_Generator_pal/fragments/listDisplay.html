@@ -1,0 +1,162 @@
+<div class="alert alert-info" xmlns:c="contractpal">
+    <h3>Experiment Dashboard</h3>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Java Plugin Generator
+                </div>
+                <div class="panel-body">
+                    <p><strong>Status:</strong> ${pluginStatus}</p>
+                    <p><strong>Java Generator Time:</strong> ${javaGeneratorTime} ms</p>
+                    <p><strong>Plugin Round Trip Time:</strong> ${pluginRoundTripTime} ms</p>
+                    <p><strong>Plugin Result:</strong> ${pluginResult}</p>
+                    <p><strong>Plugin Message:</strong> ${pluginMessage}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    JavaScript Generator
+                </div>
+                <div class="panel-body">
+                    <p><strong>JavaScript Generator Time:</strong> ${javaScriptGeneratorTime} ms</p>
+                    <p><strong>User Input Received:</strong> ${experimentItems}</p>
+                    <p><strong>Decision Engine:</strong> ${requestSize}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr/>
+
+        <div>
+        <input type="hidden" name="items" value="${experimentItems}"/>
+    
+        <c:div test="${selectedGender eq 'Yes'}">
+            <input type="hidden" name="gender" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedAge eq 'Yes'}">
+            <input type="hidden" name="age" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedBirthDate eq 'Yes'}">
+            <input type="hidden" name="birthDate" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedAddress eq 'Yes'}">
+            <input type="hidden" name="address" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedCity eq 'Yes'}">
+            <input type="hidden" name="city" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedState eq 'Yes'}">
+            <input type="hidden" name="state" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedSSN eq 'Yes'}">
+            <input type="hidden" name="ssn" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedPhone eq 'Yes'}">
+            <input type="hidden" name="phoneNumber" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedZipCode eq 'Yes'}">
+            <input type="hidden" name="zipCode" value="on"/>
+        </c:div>
+    
+        <c:div test="${selectedEmail eq 'Yes'}">
+            <input type="hidden" name="email" value="on"/>
+        </c:div>
+        
+        <c:button class="btn btn-primary" value="Run Same Experiment Again" action="submit"/>
+        <c:button class="btn btn-default" value="Start Over" action="startOver"/>
+        <c:button class="btn btn-warning" value="Clear Timing Log" action="clearTimingLog"/>
+    </div>
+
+    <hr/>
+    <h4>Session Timing Log</h4>
+
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <th>Run</th>
+                <th>Records</th>
+                <th>Java Generator</th>
+                <th>Plugin Round Trip</th>
+                <th>JavaScript Generator</th>
+            </tr>
+        
+            <c:list name="timingLog" id="log">
+                <tr>
+                    <td>${log.run}</td>
+                    <td>${log.items}</td>
+                    <td>${log.javaTime} ms</td>
+                    <td>${log.roundTripTime} ms</td>
+                    <td>${log.jsTime} ms</td>
+                </tr>
+            </c:list>
+        </table>
+
+    <h4>Experiment 7 - Request Inspector</h4>
+
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th>Field</th>
+            <th>Selected?</th>
+        </tr>
+        <tr>
+            <td>Gender</td>
+            <td>${selectedGender}</td>
+        </tr>
+        <tr>
+            <td>Age</td>
+            <td>${selectedAge}</td>
+        </tr>
+        <tr>
+            <td>Birth Date</td>
+            <td>${selectedBirthDate}</td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td>${selectedAddress}</td>
+        </tr>
+        <tr>
+            <td>City</td>
+            <td>${selectedCity}</td>
+        </tr>
+        <tr>
+            <td>State</td>
+            <td>${selectedState}</td>
+        </tr>
+        <tr>
+            <td>SSN</td>
+            <td>${selectedSSN}</td>
+        </tr>
+        <tr>
+            <td>Phone Number</td>
+            <td>${selectedPhone}</td>
+        </tr>
+        <tr>
+            <td>Zip Code</td>
+            <td>${selectedZipCode}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>${selectedEmail}</td>
+        </tr>
+    </table>
+
+    <c:div test="${showDebugInfo eq true}">
+        <hr/>
+        <h4>Debug Mode Enabled</h4>
+        <p>This section only appears when the user checks "Show Debug Info".</p>
+        <p><strong>Payload test:</strong> Plugin data was successfully passed into the page.</p>
+    </c:div>
+</div>
