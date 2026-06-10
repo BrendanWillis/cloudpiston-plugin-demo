@@ -1,4 +1,4 @@
-package org.brendan;
+package org.brendan.random;
 
 public class Person {
 

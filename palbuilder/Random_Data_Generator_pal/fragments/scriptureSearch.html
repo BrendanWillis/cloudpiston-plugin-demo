@@ -30,14 +30,29 @@
 
     <br/>
 
-    <c:button class="btn btn-primary" value="Search Scriptures" action="searchScriptures"/>
-
+    <c:button class="btn btn-primary" value="Run Java Scripture Search" action="searchScriptures"/>
+              
     <c:button class="btn btn-default" value="Back to Random Generator" action="startOver"/>
 
     <c:div test="${scriptureSearchWord ne null}">
         <hr/>
 
-        <h3>Search Results</h3>
+        <h3>Java Scripture Search Results</h3>
+
+        <p>
+            <strong>Plugin Result:</strong>
+            ${scripturePluginResult}
+        </p>
+        
+        <p>
+            <strong>Java Search Time:</strong>
+            ${javaScriptureSearchTime} ms
+        </p>
+        
+        <p>
+            <strong>Plugin Round Trip Time:</strong>
+            ${scriptureRoundTripTime} ms
+        </p>
         
         <p>
             <strong>${scriptureResultCount}</strong>

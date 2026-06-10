@@ -1,10 +1,6 @@
-package org.brendan;
+package org.brendan.scriptures;
 
-import com.nxlight.framework.pal.workflow.common.CommonController;
-import com.nxlight.framework.pal.workflow.common.DataList;
-import com.nxlight.framework.pal.workflow.common.PacketDataList;
-import com.nxlight.framework.pal.workflow.common.PacketDataRecord;
-import com.nxlight.framework.pal.workflow.common.WorkflowException;
+import com.nxlight.framework.pal.workflow.common.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,6 +18,73 @@ public class ScriptureSearch {
 
     public ScriptureSearch(CommonController controller) {
         this.controller = controller;
+    }
+
+    // MOVED FROM Brendan.java
+    public String execute(Payload payload) throws WorkflowException {
+
+        Data data = payload.getData();
+
+        String searchWord = data.get("scriptureSearchWord");
+        String maxResultsText = data.get("scriptureMaxResults");
+        String secondWord = data.get("scriptureSecondWord");
+        String distanceText = data.get("scriptureDistance");
+
+        int maxResults = 10;
+
+        try {
+            maxResults = Integer.parseInt(maxResultsText);
+        } catch (Exception e) {
+            maxResults = 10;
+        }
+
+        int distance = 0;
+
+        try {
+            distance = Integer.parseInt(distanceText);
+        } catch (Exception e) {
+            distance = 0;
+        }
+
+        if (searchWord == null || searchWord.trim().length() == 0) {
+            return "No scripture search word entered.";
+        }
+
+        long javaStart = System.currentTimeMillis();
+
+        DataList scriptureResults;
+
+        boolean isProximitySearch =
+                secondWord != null && secondWord.trim().length() > 0;
+
+        if (isProximitySearch) {
+            scriptureResults =
+                    searchProximity(searchWord, secondWord, distance, maxResults);
+        } else {
+            scriptureResults =
+                    searchWord(searchWord, maxResults);
+        }
+
+        long javaEnd = System.currentTimeMillis();
+        long scriptureSearchTime = javaEnd - javaStart;
+
+        payload.addDataList(scriptureResults);
+
+        payload.set("scriptureResultCount",
+                String.valueOf(scriptureResults.getRecordCount()));
+
+        payload.set("scriptureSearchWord", searchWord);
+        payload.set("scriptureSecondWord", secondWord);
+        payload.set("scriptureDistance", String.valueOf(distance));
+        payload.set("scriptureMaxResults", String.valueOf(maxResults));
+        payload.set("isProximitySearch", isProximitySearch ? "Yes" : "No");
+
+        // This helps us compare Java scripture search time later
+        payload.set("javaScriptureSearchTime", String.valueOf(scriptureSearchTime));
+
+        controller.debug("Java scripture search time: " + scriptureSearchTime + " ms");
+
+        return "Scripture search completed.";
     }
 
     public DataList searchWord(String searchTerm, int maxResults) throws WorkflowException {
@@ -111,7 +174,6 @@ public class ScriptureSearch {
         }
 
         String originalFirstWord = firstWord;
-        String originalSecondWord = secondWord;
 
         firstWord = normalizeForSearch(firstWord);
         secondWord = normalizeForSearch(secondWord);
