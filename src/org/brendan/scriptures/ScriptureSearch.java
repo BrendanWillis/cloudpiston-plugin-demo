@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.Base64;
 
 public class ScriptureSearch {
 
@@ -52,6 +53,11 @@ public class ScriptureSearch {
 
         long javaStart = System.currentTimeMillis();
 
+        PacketDataList scriptureFiles = controller.createDataList(
+                "scriptureFiles",
+                new String[]{"filename", "fileOnly", "reference", "payloadKey"}
+        );
+
         DataList scriptureResults;
 
         boolean isProximitySearch =
@@ -59,19 +65,26 @@ public class ScriptureSearch {
 
         if (isProximitySearch) {
             scriptureResults =
-                    searchProximity(searchWord, secondWord, distance, maxResults);
+                    searchProximity(searchWord, secondWord, distance, maxResults, payload, scriptureFiles);
         } else {
             scriptureResults =
-                    searchWord(searchWord, maxResults);
+                    searchWord(searchWord, maxResults, payload, scriptureFiles);
         }
 
         long javaEnd = System.currentTimeMillis();
         long scriptureSearchTime = javaEnd - javaStart;
 
         payload.addDataList(scriptureResults);
+        payload.addDataList(scriptureFiles);
+
+        controller.debug("ScriptureFiles count = "
+                + scriptureFiles.getRecordCount());
 
         payload.set("scriptureResultCount",
                 String.valueOf(scriptureResults.getRecordCount()));
+
+        payload.set("scriptureFileCount",
+                String.valueOf(scriptureFiles.getRecordCount()));
 
         payload.set("scriptureSearchWord", searchWord);
         payload.set("scriptureSecondWord", secondWord);
@@ -79,20 +92,28 @@ public class ScriptureSearch {
         payload.set("scriptureMaxResults", String.valueOf(maxResults));
         payload.set("isProximitySearch", isProximitySearch ? "Yes" : "No");
 
-        // This helps us compare Java scripture search time later
-        payload.set("javaScriptureSearchTime", String.valueOf(scriptureSearchTime));
+        payload.set("javaScriptureSearchTime", scriptureSearchTime + " ms");
 
         controller.debug("Java scripture search time: " + scriptureSearchTime + " ms");
 
         return "Scripture search completed.";
     }
 
-    public DataList searchWord(String searchTerm, int maxResults) throws WorkflowException {
+    public DataList searchWord(String searchTerm, int maxResults, Payload payload, PacketDataList scriptureFiles)
+            throws WorkflowException {
 
         PacketDataList results = controller.createDataList(
                 "scriptureResults",
-                new String[]{"reference", "filename", "matchText", "fileOnly"}
-        );
+                new String[]{
+                        "reference",
+                        "filename",
+                        "matchText",
+                        "fileOnly",
+                        "imageName",
+                        "imageMimeType",
+                        "imageBase64",
+                        "imagePayloadKey"
+                });
 
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
             controller.debug("No search term entered.");
@@ -138,6 +159,9 @@ public class ScriptureSearch {
                     record.setDataValue("matchText", makeSnippet(plainText, originalSearchTerm));
                     record.setDataValue("fileOnly", getFileOnly(entry.getName()));
 
+                    addFileToPayload(payload, scriptureFiles, entry.getName(), plainText, fileText);
+                    addImageToRecord(payload, record, entry.getName(), fileText);
+
                     count++;
 
                     if (count >= maxResults) {
@@ -155,13 +179,22 @@ public class ScriptureSearch {
         return results;
     }
 
-    public DataList searchProximity(String firstWord, String secondWord, int distance, int maxResults)
+    public DataList searchProximity(String firstWord, String secondWord, int distance, int maxResults,
+                                    Payload payload, PacketDataList scriptureFiles)
             throws WorkflowException {
 
         PacketDataList results = controller.createDataList(
                 "scriptureResults",
-                new String[]{"reference", "filename", "matchText", "fileOnly"}
-        );
+                new String[]{
+                        "reference",
+                        "filename",
+                        "matchText",
+                        "fileOnly",
+                        "imageName",
+                        "imageMimeType",
+                        "imageBase64",
+                        "imagePayloadKey"
+                });
 
         if (firstWord == null || firstWord.trim().isEmpty()) {
             controller.debug("No first word entered.");
@@ -213,6 +246,9 @@ public class ScriptureSearch {
                     record.setDataValue("filename", entry.getName());
                     record.setDataValue("matchText", makeSnippet(plainText, originalFirstWord));
                     record.setDataValue("fileOnly", getFileOnly(entry.getName()));
+
+                    addFileToPayload(payload, scriptureFiles, entry.getName(), plainText, fileText);
+                    addImageToRecord(payload, record, entry.getName(), fileText);
 
                     count++;
 
@@ -376,4 +412,309 @@ public class ScriptureSearch {
 
         return filename;
     }
+
+    private void addImageToRecord(Payload payload, PacketDataRecord record, String xhtmlFilename, String fileText)
+            throws WorkflowException {
+
+//        controller.debug("IMAGE CHECK RUNNING FOR: " + xhtmlFilename);
+
+        String imagePath = findFirstImagePath(fileText);
+
+        if (imagePath == null) {
+//            controller.debug("No image tag found in: " + xhtmlFilename);
+            return;
+        }
+
+        String resolvedImagePath = resolveImagePath(xhtmlFilename, imagePath);
+
+        byte[] imageBytes = readFileFromEpub(resolvedImagePath);
+
+        if (imageBytes == null) {
+            controller.debug("Image not found in EPUB: " + resolvedImagePath);
+            return;
+        }
+
+        String imageBase64 =
+                Base64.getEncoder().encodeToString(imageBytes);
+
+        String imagePayloadKey = "image_" + makeSafeKey(resolvedImagePath);
+
+        record.setDataValue("imageName", resolvedImagePath);
+        record.setDataValue("imageMimeType", getMimeType(resolvedImagePath));
+        record.setDataValue("imageBase64", imageBase64);
+        record.setDataValue("imagePayloadKey", imagePayloadKey);
+
+        payload.set(imagePayloadKey, imageBase64);
+
+        controller.debug("Added payload image: " + imagePayloadKey);
+    }
+
+    private String findFirstImagePath(String html) {
+
+        String lowerHtml = html.toLowerCase();
+
+        int imgIndex = lowerHtml.indexOf("<img");
+
+        if (imgIndex < 0) {
+            return null;
+        }
+
+        int srcIndex = lowerHtml.indexOf("src=", imgIndex);
+
+        if (srcIndex < 0) {
+            return null;
+        }
+
+        int quoteStart = srcIndex + 4;
+
+        while (quoteStart < html.length() &&
+                (html.charAt(quoteStart) == ' ' || html.charAt(quoteStart) == '\t')) {
+            quoteStart++;
+        }
+
+        char quote = html.charAt(quoteStart);
+
+        if (quote != '"' && quote != '\'') {
+            return null;
+        }
+
+        int pathStart = quoteStart + 1;
+        int pathEnd = html.indexOf(quote, pathStart);
+
+        if (pathEnd < 0) {
+            return null;
+        }
+
+        return html.substring(pathStart, pathEnd);
+    }
+
+    private String resolveImagePath(String xhtmlFilename, String imagePath) {
+
+        if (imagePath.startsWith("/")) {
+            return imagePath.substring(1);
+        }
+
+        int slash = xhtmlFilename.lastIndexOf("/");
+
+        String folder = "";
+
+        if (slash >= 0) {
+            folder = xhtmlFilename.substring(0, slash + 1);
+        }
+
+        String combined = folder + imagePath;
+
+        while (combined.contains("../")) {
+
+            int parentIndex = combined.indexOf("../");
+
+            String beforeParent = combined.substring(0, parentIndex);
+
+            if (beforeParent.endsWith("/")) {
+                beforeParent = beforeParent.substring(0, beforeParent.length() - 1);
+            }
+
+            int previousSlash = beforeParent.lastIndexOf("/");
+
+            if (previousSlash >= 0) {
+                combined = beforeParent.substring(0, previousSlash + 1)
+                        + combined.substring(parentIndex + 3);
+            } else {
+                combined = combined.substring(parentIndex + 3);
+            }
+        }
+
+        return combined;
+    }
+
+    private byte[] readFileFromEpub(String targetPath) throws WorkflowException {
+
+        InputStream stream = getClass().getResourceAsStream(EPUB_PATH);
+
+        if (stream == null) {
+            controller.debug("EPUB NOT FOUND: " + EPUB_PATH);
+            return null;
+        }
+
+        try {
+            ZipInputStream zip = new ZipInputStream(stream);
+            ZipEntry entry;
+
+            while ((entry = zip.getNextEntry()) != null) {
+
+                if (entry.getName().equals(targetPath)) {
+                    return readZipEntryBytes(zip);
+                }
+            }
+
+        } catch (IOException e) {
+            throw new WorkflowException("Error reading image from EPUB", e);
+        }
+
+        return null;
+    }
+
+    private byte[] readZipEntryBytes(ZipInputStream zip) throws IOException {
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+        int length;
+
+        while ((length = zip.read(buffer)) != -1) {
+            output.write(buffer, 0, length);
+        }
+
+        return output.toByteArray();
+    }
+
+    private String getMimeType(String filename) {
+
+        String lower = filename.toLowerCase();
+
+        if (lower.endsWith(".png")) {
+            return "image/png";
+        }
+
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+            return "image/jpeg";
+        }
+
+        if (lower.endsWith(".gif")) {
+            return "image/gif";
+        }
+
+        if (lower.endsWith(".svg")) {
+            return "image/svg+xml";
+        }
+
+        return "image/png";
+    }
+    public void listImageFiles() throws WorkflowException {
+
+        InputStream stream = getClass().getResourceAsStream(EPUB_PATH);
+
+        if (stream == null) {
+            controller.debug("EPUB NOT FOUND: " + EPUB_PATH);
+            return;
+        }
+
+        try {
+            ZipInputStream zip = new ZipInputStream(stream);
+            ZipEntry entry;
+
+            while ((entry = zip.getNextEntry()) != null) {
+
+                String name = entry.getName().toLowerCase();
+
+                if (name.endsWith(".png") ||
+                        name.endsWith(".jpg") ||
+                        name.endsWith(".jpeg") ||
+                        name.endsWith(".gif") ||
+                        name.endsWith(".svg")) {
+
+                    controller.debug("EPUB IMAGE FILE: " + entry.getName());
+                }
+            }
+
+        } catch (IOException e) {
+            throw new WorkflowException("Error listing EPUB images", e);
+        }
+    }
+
+//    public void inspectEpubForImages() throws WorkflowException {
+//
+//        InputStream stream = getClass().getResourceAsStream(EPUB_PATH);
+//
+//        if (stream == null) {
+//            controller.debug("EPUB NOT FOUND: " + EPUB_PATH);
+//            return;
+//        }
+//
+//        int imageFileCount = 0;
+//        int xhtmlWithImgTagCount = 0;
+//        int xhtmlWithImageReferenceCount = 0;
+//
+//        try {
+//            ZipInputStream zip = new ZipInputStream(stream);
+//            ZipEntry entry;
+//
+//            while ((entry = zip.getNextEntry()) != null) {
+//
+//                String entryName = entry.getName();
+//                String lowerName = entryName.toLowerCase();
+//
+//                if (isImageFile(lowerName)) {
+//                    imageFileCount++;
+//                    controller.debug("EPUB IMAGE FILE: " + entryName);
+//                    continue;
+//                }
+//
+//                if (lowerName.endsWith(".xhtml") || lowerName.endsWith(".html")) {
+//
+//                    String fileText = readZipEntry(zip);
+//                    String lowerText = fileText.toLowerCase();
+//
+//                    if (lowerText.contains("<img")) {
+//                        xhtmlWithImgTagCount++;
+//                        controller.debug("XHTML HAS IMG TAG: " + entryName);
+//                    }
+//
+//                    if (lowerText.contains(".jpg") ||
+//                            lowerText.contains(".jpeg") ||
+//                            lowerText.contains(".png") ||
+//                            lowerText.contains(".gif") ||
+//                            lowerText.contains(".svg")) {
+//
+//                        xhtmlWithImageReferenceCount++;
+//                        controller.debug("XHTML HAS IMAGE TEXT REFERENCE: " + entryName);
+//                    }
+//                }
+//            }
+//
+//        } catch (IOException e) {
+//            throw new WorkflowException("Error inspecting EPUB images", e);
+//        }
+//
+//        controller.debug("EPUB INSPECTION SUMMARY - image files: " + imageFileCount);
+//        controller.debug("EPUB INSPECTION SUMMARY - XHTML files with <img>: " + xhtmlWithImgTagCount);
+//        controller.debug("EPUB INSPECTION SUMMARY - XHTML files mentioning image extensions: " + xhtmlWithImageReferenceCount);
+//    }
+
+    private boolean isImageFile(String lowerName) {
+
+        return lowerName.endsWith(".png") ||
+                lowerName.endsWith(".jpg") ||
+                lowerName.endsWith(".jpeg") ||
+                lowerName.endsWith(".gif") ||
+                lowerName.endsWith(".svg");
+    }
+private void addFileToPayload(
+        Payload payload,
+        PacketDataList scriptureFiles,
+        String filename,
+        String plainText,
+        String fileText) throws WorkflowException {
+
+    String payloadKey = "file_" + makeSafeKey(filename);
+
+    PacketDataRecord fileRecord = scriptureFiles.insertRecord();
+    fileRecord.setDataValue("filename", filename);
+    fileRecord.setDataValue("fileOnly", getFileOnly(filename));
+    fileRecord.setDataValue("reference", makeReference(filename, plainText));
+    fileRecord.setDataValue("payloadKey", payloadKey);
+
+    String base64File =
+            Base64.getEncoder().encodeToString(
+                    fileText.getBytes(StandardCharsets.UTF_8)
+            );
+
+    payload.set(payloadKey, base64File);
+
+    controller.debug("Added payload file: " + payloadKey);}
+
+private String makeSafeKey(String text) {
+    return text.replaceAll("[^a-zA-Z0-9]", "_");
+}
+
 }

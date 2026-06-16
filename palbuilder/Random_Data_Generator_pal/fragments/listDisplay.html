@@ -9,8 +9,8 @@
                 </div>
                 <div class="panel-body">
                     <p><strong>Status:</strong> ${pluginStatus}</p>
-                    <p><strong>Java Generator Time:</strong> ${javaGeneratorTime} ms</p>
-                    <p><strong>Plugin Round Trip Time:</strong> ${pluginRoundTripTime} ms</p>
+                    <p><strong>Java Generator Time:</strong> ${javaGeneratorTime}</p>
+                    <p><strong>Plugin Round Trip Time:</strong> ${pluginRoundTripTime}</p>
                     <p><strong>Plugin Result:</strong> ${pluginResult}</p>
                     <p><strong>Plugin Message:</strong> ${pluginMessage}</p>
                 </div>
@@ -23,7 +23,7 @@
                     JavaScript Random Generator
                 </div>
                 <div class="panel-body">
-                    <p><strong>JavaScript Generator Time:</strong> ${javaScriptGeneratorTime} ms</p>
+                    <p><strong>JavaScript Generator Time:</strong> ${javaScriptGeneratorTime}</p>
                     <p><strong>JavaScript Result:</strong> ${javaScriptResult}</p>
                 </div>
             </div>
@@ -81,7 +81,7 @@
 
         <c:button class="btn btn-default" value="Start Over" action="startOver"/>
 
-        <c:button class="btn btn-warning" value="Clear Timing Log" action="clearTimingLog"/>
+        <c:button class="btn btn-info" value="Clear Timing Log" action="clearTimingLog"/>
     </div>
 
     <hr/>
@@ -101,9 +101,9 @@
             <tr>
                 <td>${log.run}</td>
                 <td>${log.items}</td>
-                <td>${log.javaTime} ms</td>
-                <td>${log.roundTripTime} ms</td>
-                <td>${log.jsTime} ms</td>
+                <td>${log.javaTime}</td>
+                <td>${log.roundTripTime}</td>
+                <td>${log.jsTime}</td>
             </tr>
         </c:list>
     </table>

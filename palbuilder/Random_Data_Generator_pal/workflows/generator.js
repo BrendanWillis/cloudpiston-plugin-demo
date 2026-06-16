@@ -104,18 +104,22 @@ function runJavaGenerator()
     var pluginEnd = new Date().getTime();
 
     var pluginResult = result.readBody();
+    var roundTripTime = pluginEnd - pluginStart;
 
     payload.set("pluginStatus", "Online");
-    payload.set("javaPluginResult", pluginResult);
     payload.set("pluginResult", pluginResult);
-    payload.set("pluginRoundTripTime", pluginEnd - pluginStart);
-    payload.set("javaScriptGeneratorTime", "");
+    payload.set("pluginRoundTripTime", roundTripTime + " ms");
+
+    payload.set("javaGeneratorTime", payload.get("javaGeneratorTime") + " ms");
+
+    payload.set("javaScriptGeneratorTime", "Not run");
+    payload.set("javaScriptResult", "JavaScript generator was not used for this run.");
 
     addTimingLog(
         items,
         payload.get("javaGeneratorTime"),
         payload.get("pluginRoundTripTime"),
-        ""
+        "Not run"
     );
 }
 
@@ -133,18 +137,19 @@ function runJavaScriptGenerator()
     var jsTime = jsEnd - jsStart;
 
     payload.set("pluginStatus", "Not used");
-    payload.set("pluginRoundTripTime", "");
-    payload.set("javaGeneratorTime", "");
-    payload.set("pluginResult", "Java plugin was not used.");
-    payload.set("javaPluginResult", "Java plugin was not used.");
-    payload.set("javaScriptGeneratorTime", jsTime);
+    payload.set("javaGeneratorTime", "Not run");
+    payload.set("pluginRoundTripTime", "Not run");
+    payload.set("pluginResult", "Java plugin was not used for this run.");
+    payload.set("pluginMessage", "JavaScript generator ran by itself.");
+
+    payload.set("javaScriptGeneratorTime", jsTime + " ms");
     payload.set("javaScriptResult", "JavaScript generator completed.");
 
     addTimingLog(
         items,
-        "",
-        "",
-        jsTime
+        "Not run",
+        "Not run",
+        jsTime + " ms"
     );
 }
 
@@ -170,7 +175,7 @@ function searchScriptures()
     var scriptureResultText = scriptureResult.readBody();
 
     payload.set("scripturePluginResult", scriptureResultText);
-    payload.set("scriptureRoundTripTime", scriptureEnd - scriptureStart);
+    payload.set("scriptureRoundTripTime", (scriptureEnd - scriptureStart) + " ms");
 }
 
 function clearTimingLog()

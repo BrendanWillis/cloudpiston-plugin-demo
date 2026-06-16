@@ -1,4 +1,4 @@
-<div xmlns:c="contractpal" style="width:770px;             padding:30px;             margin-left:auto;             margin-right:auto;             margin-top:30px;             border:1px solid #d1d1d3;             border-radius:15px;             background-color:#f8f8f9">
+<div xmlns:c="contractpal" style="width:770px; padding:30px; margin-left:auto; margin-right:auto; margin-top:30px; border:1px solid #d1d1d3; border-radius:15px; background-color:#f8f8f9">
 
     <h2>Scripture Search</h2>
 
@@ -31,7 +31,7 @@
     <br/>
 
     <c:button class="btn btn-primary" value="Run Java Scripture Search" action="searchScriptures"/>
-              
+
     <c:button class="btn btn-default" value="Back to Random Generator" action="startOver"/>
 
     <c:div test="${scriptureSearchWord ne null}">
@@ -39,25 +39,10 @@
 
         <h3>Java Scripture Search Results</h3>
 
-        <p>
-            <strong>Plugin Result:</strong>
-            ${scripturePluginResult}
-        </p>
-        
-        <p>
-            <strong>Java Search Time:</strong>
-            ${javaScriptureSearchTime} ms
-        </p>
-        
-        <p>
-            <strong>Plugin Round Trip Time:</strong>
-            ${scriptureRoundTripTime} ms
-        </p>
-        
-        <p>
-            <strong>${scriptureResultCount}</strong>
-            result(s) found.
-        </p>
+        <p><strong>Plugin Result:</strong> ${scripturePluginResult}</p>
+        <p><strong>Java Search Time:</strong> ${javaScriptureSearchTime}</p>
+        <p><strong>Plugin Round Trip Time:</strong> ${scriptureRoundTripTime}</p>
+        <p><strong>${scriptureResultCount}</strong> result(s) found.</p>
 
         <c:div test="${isProximitySearch eq 'Yes'}">
             <p>
@@ -79,43 +64,55 @@
 
         <c:list name="scriptureResults" id="result">
 
-            <div style="border:1px solid #cccccc;                         padding:10px;                         margin-bottom:10px;                         background-color:#ffffff;">
-
-                <h4>${result.reference}</h4>
-
-                <strong>File:</strong>
-                ${result.filename}
+        <div style="border:1px solid #cccccc;                     padding:10px;                     margin-bottom:10px;                     background-color:#ffffff;">
+    
+            <h4>${result.reference}</h4>
+    
+            <c:div test="${isProximitySearch eq 'Yes'}">
+                <p>
+                    <strong>Matched Words:</strong>
+                    <mark>${scriptureSearchWord}</mark>
+                    and
+                    <mark>${scriptureSecondWord}</mark>
+                </p>
+            </c:div>
+    
+            <c:div test="${isProximitySearch ne 'Yes'}">
+                <p>
+                    <strong>Matched Word:</strong>
+                    <mark>${scriptureSearchWord}</mark>
+                </p>
                 
-                <br/>
                 
-                <strong>File Only:</strong>
-                ${result.fileOnly}
-                
-                <br/><br/>
-
-                <c:div test="${isProximitySearch eq 'Yes'}">
-                    <p>
-                        <strong>Matched Words:</strong>
-                        <mark>${scriptureSearchWord}</mark>
-                        and
-                        <mark>${scriptureSecondWord}</mark>
-                    </p>
-                </c:div>
-
-                <c:div test="${isProximitySearch ne 'Yes'}">
-                    <p>
-                        <strong>Matched Word:</strong>
-                        <mark>${scriptureSearchWord}</mark>
-                    </p>
-                </c:div>
-
-                <strong>Match:</strong>
-
-                <p>${result.matchText}</p>
-
-            </div>
-
-        </c:list>
+            </c:div>
+    
+            <strong>Match:</strong>
+    
+            <p>${result.matchText}</p>
+    
+            <!--
+            TODO:
+            Image extraction is working in Java, but Pal Builder rejects
+            data:${result.imageMimeType};base64,... expressions in img src.
+            Need to generate a full imageDataUrl in Java before enabling.
+            -->
+            
+           <!--
+            <c:div test="${result.imageBase64 ne null}">
+                <hr/>
+    
+                <p><strong>Related Image:</strong></p>
+    
+                <img style="max-width:300px;
+                            border:1px solid #cccccc;
+                            padding:5px;"
+                     src="data:${result.imageMimeType};base64,${result.imageBase64}"/>
+            </c:div>
+            -->
+    
+        </div>
+    
+    </c:list>
     </c:div>
 
 </div>
