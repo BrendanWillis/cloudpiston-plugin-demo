@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 public class RandomName {
 
-    private static final int MIN_ITEMS = 1;
-    private static final int MAX_ITEMS = 1000;
+//    private static final int MIN_ITEMS = 1;
+//    private static final int MAX_ITEMS = 1000;
 
     private HashMap<String, Person> map = new HashMap<String, Person>();
     private ArrayList<Person> list = new ArrayList<Person>();
@@ -82,23 +82,8 @@ public class RandomName {
 
     private int getSafeItemCount(String message) {
 
-        int items;
 
-        try {
-            items = Integer.parseInt(message);
-        } catch (Exception e) {
-            items = MIN_ITEMS;
-        }
-
-        if (items < MIN_ITEMS) {
-            items = MIN_ITEMS;
-        }
-
-        if (items > MAX_ITEMS) {
-            items = MAX_ITEMS;
-        }
-
-        return items;
+        return Integer.parseInt(message);
     }
 
     private DataList createRandomList1(int namesNumber, Data data) throws WorkflowException {

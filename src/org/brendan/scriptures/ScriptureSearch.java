@@ -162,6 +162,10 @@ public class ScriptureSearch {
                     addFileToPayload(payload, scriptureFiles, entry.getName(), plainText, fileText);
                     addImageToRecord(payload, record, entry.getName(), fileText);
 
+                    controller.debug("File:" + scriptureFiles );
+                    controller.debug("Snippet:" +  searchTerm);
+
+
                     count++;
 
                     if (count >= maxResults) {
@@ -416,12 +420,12 @@ public class ScriptureSearch {
     private void addImageToRecord(Payload payload, PacketDataRecord record, String xhtmlFilename, String fileText)
             throws WorkflowException {
 
-//        controller.debug("IMAGE CHECK RUNNING FOR: " + xhtmlFilename);
+        controller.debug("IMAGE CHECK RUNNING FOR: " + xhtmlFilename);
 
         String imagePath = findFirstImagePath(fileText);
 
         if (imagePath == null) {
-//            controller.debug("No image tag found in: " + xhtmlFilename);
+            controller.debug("No image tag found in: " + xhtmlFilename);
             return;
         }
 
