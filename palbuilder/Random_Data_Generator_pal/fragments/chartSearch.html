@@ -1,0 +1,36 @@
+<div style="width:770px; padding:30px; margin-left:auto; margin-right:auto; margin-top:30px; border:1px solid #d1d1d3; border-radius:15px; background-color:#f8f8f9" xmlns:c="contractpal">
+
+    <h3>Scripture Word Usage Chart</h3>
+
+    <p>Enter a word to count across the books of scripture.</p>
+
+    <label>Search Word:</label>
+    <input name="chartSearchWord" style="width:200px" type="text" class="form-control" placeholder="e.g. Lord"/>
+
+    <br/>
+
+    <c:button class="btn btn-warning" value="Generate Chart Data" action="generateChart"/>
+
+    <c:button class="btn btn-default" value="Back to Generator" action="startOver"/>
+
+    <hr/>
+
+    <p><strong>Plugin Result:</strong> ${chartPluginResult}</p>
+    <p><strong>Round Trip Time:</strong> ${chartRoundTripTime}</p>
+
+    <h4>Chart Data Preview</h4>
+
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th>Book</th>
+            <th>Usage Count</th>
+        </tr>
+
+        <c:list name="chartData" id="row">
+            <tr>
+                <td>${row.bookName}</td>
+                <td>${row.usageCount}</td>
+            </tr>
+        </c:list>
+    </table>
+</div>

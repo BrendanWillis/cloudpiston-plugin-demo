@@ -59,6 +59,19 @@ function run(controller)
 
         case "download":
             return downloadList();
+            
+        case "getChart":
+            page=c.getPage("D3");
+            break;
+        
+        case "generateChart":
+            generateChart();
+            payload.setValue("fragment", "chartSearch");
+            break;
+        
+        case "showchartSearch":
+            payload.setValue("fragment", "chartSearch");
+            break;
     }
 
     page.addPayload(payload);
@@ -93,7 +106,7 @@ function runJavaGenerator()
     var data = request.getData();
     var items = setupRandomPayload(data);
 
-    payload.set("old", "true");
+    payload.set("old", "false");
 
     var plugin = pal.getPluginSocket("Brendan");
     plugin.setController(c);
@@ -121,6 +134,8 @@ function runJavaGenerator()
         payload.get("pluginRoundTripTime"),
         "Not run"
     );
+    payload.addData(data);
+    c.debug(payload);
 }
 
 function runJavaScriptGenerator()
@@ -144,6 +159,10 @@ function runJavaScriptGenerator()
 
     payload.set("javaScriptGeneratorTime", jsTime + " ms");
     payload.set("javaScriptResult", "JavaScript generator completed.");
+    
+    
+    payload.addData(data);
+    c.debug(payload);
 
     addTimingLog(
         items,
@@ -176,6 +195,8 @@ function searchScriptures()
 
     payload.set("scripturePluginResult", scriptureResultText);
     payload.set("scriptureRoundTripTime", (scriptureEnd - scriptureStart) + " ms");
+    
+    c.debug(payload);
 }
 
 function clearTimingLog()
@@ -228,4 +249,49 @@ function downloadList()
     response.setFileContent(file);
 
     return response;
+}
+
+function testChart ()
+{
+    return getChart;
+}
+
+function generateChart()
+{
+    // Get the data the user typed into the PAL page.
+    var chartData = request.getData();
+
+    // Tell Brendan.java to route this request to ChartBuilder.
+    payload.set("module", "charts");
+
+    // Send the searched word to Java.
+    // This key must match Brendan.java: payload.get("chartSearchWord")
+    payload.set("chartSearchWord", chartData.get("chartSearchWord"));
+
+    // Get the Java plugin socket.
+    var chartPlugin = pal.getPluginSocket("Brendan");
+
+    // Give the plugin access to the current controller.
+    chartPlugin.setController(c);
+
+    // Give the plugin the payload containing chartSearchWord and module.
+    chartPlugin.setPayload(payload);
+
+    // Track how long the Java plugin round trip takes.
+    var chartStart = new Date().getTime();
+
+    // Run the Java plugin.
+    var chartResult = chartPlugin.submit();
+
+    var chartEnd = new Date().getTime();
+
+    // Read the message returned by Brendan.java.
+    var chartResultText = chartResult.readBody();
+
+    // Store result info so the PAL page can display it.
+    payload.set("chartPluginResult", chartResultText);
+    payload.set("chartRoundTripTime", (chartEnd - chartStart) + " ms");
+
+    // Print payload to debug so we can inspect chartData.
+    c.debug(payload);
 }

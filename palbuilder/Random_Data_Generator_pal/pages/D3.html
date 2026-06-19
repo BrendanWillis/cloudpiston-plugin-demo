@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:c="contractpal">
+    <head>
+        <title>Revenue by Format Chart</title>
+        <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+
+  <!-- D3 Library -->  
+  <c:resource name="d3_min.js" source="d3"/>
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 24px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-bottom: 6px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      margin-top: 0;
+      color: #666;
+      font-size: 15px;
+    }
+
+    #chart {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .axis text {
+      font-size: 12px;
+      fill: #444;
+    }
+
+    .axis path,
+    .axis line {
+      stroke: #ccc;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(30, 30, 30, 0.92);
+      color: white;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.35;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 20px;
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .note {
+      margin-top: 18px;
+      color: #777;
+      font-size: 13px;
+    }
+  </style>
+    <c:cp-page-head/></head>
+    <body><c:cp-page-body-start/>
+        <div id="cp-root">
+            <div class="page">
+    <h1>Revenue by Music Format</h1>
+    <p class="subtitle">Stacked revenue by format over time. Sample data included for testing.</p>
+
+    <div id="chart"></div>
+    <div id="legend" class="legend"></div>
+
+    <p class="note">
+      Replace the sample data array with your real data later. Each row needs a year, format, and revenue value.
+    </p>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+  
+  <script language="JavaScript" src="nx-ref/Scripts/chart.js" nx-src="../Scripts/chart.js"></script>
+        </div><c:cp-page-body-end/>
+   </body>
+</html>

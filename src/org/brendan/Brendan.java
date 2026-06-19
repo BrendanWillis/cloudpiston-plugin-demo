@@ -2,6 +2,7 @@ package org.brendan;
 
 import com.nxlight.framework.pal.workflow.common.WorkflowException;
 import com.nxlight.framework.pal.workflow.plugin.Plugin;
+import org.brendan.charts.ChartBuilder;
 
 import org.brendan.random.RandomName;
 import org.brendan.scriptures.ScriptureSearch;
@@ -26,6 +27,20 @@ public class Brendan extends Plugin {
                     new RandomName(controller);
 
             return randomName.execute(payload);
+        }
+
+        if ("charts".equals(module)) {
+
+            ChartBuilder chartBuilder =
+                    new ChartBuilder(controller);
+
+            payload.addDataList(
+
+            chartBuilder.buildWordUsageChart(payload.get("chartSearchWord"))
+
+            );
+
+            return "Chart builder completed.";
         }
 
         controller.debug("No valid module selected: " + module);
