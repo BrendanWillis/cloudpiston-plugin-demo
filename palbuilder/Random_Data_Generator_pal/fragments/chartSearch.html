@@ -10,6 +10,8 @@
     <br/>
 
     <c:button class="btn btn-warning" value="Generate Chart Data" action="generateChart"/>
+    
+    <c:button class="btn btn-info" value="Chart" action="getChart"/>
 
     <c:button class="btn btn-default" value="Back to Generator" action="startOver"/>
 
@@ -33,4 +35,12 @@
             </tr>
         </c:list>
     </table>
+    
+    <h4>Chart Preview</h4>
+    <div id="chart"></div>
+    <div id="tooltip" class="tooltip"></div>
+    
+    <c:resource name="d3_min.js" source="d3"/>
+    <c:resource name="chart.js" source="Scripts"/>
+    
 </div>

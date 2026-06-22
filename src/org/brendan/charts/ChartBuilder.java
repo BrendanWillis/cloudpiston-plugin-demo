@@ -6,6 +6,8 @@ import com.nxlight.framework.pal.workflow.common.PacketDataRecord;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 import java.io.InputStream;
@@ -112,8 +114,17 @@ public class ChartBuilder {
                 new String[]{"bookName", "usageCount"}
         );
 
+        List<String> canonicalBooks =
+                getCanonicalBookOrder();
+
         // Convert the HashMap into DataList rows.
-        for (String bookName : bookCounts.keySet()) {
+        for (String bookName : canonicalBooks) {
+
+            if (!bookCounts.containsKey(bookName)) {
+                continue;
+            }
+            StringBuilder chartJson = new StringBuilder();
+            controller.getPal().set("chartJson", chartJson.toString());
 
             // Create a new row in the DataList.
             PacketDataRecord row = chartData.insertRecord();
@@ -310,6 +321,110 @@ public class ChartBuilder {
         if ("a-of-f".equals(code)) return "Articles of Faith";
 
         return code.replace("-", " ");
+    }
+
+    private List<String> getCanonicalBookOrder() {
+
+        List<String> books = new ArrayList<String>();
+
+        // Old Testament
+        books.add("Genesis");
+        books.add("Exodus");
+        books.add("Leviticus");
+        books.add("Numbers");
+        books.add("Deuteronomy");
+        books.add("Joshua");
+        books.add("Judges");
+        books.add("Ruth");
+        books.add("1 Samuel");
+        books.add("2 Samuel");
+        books.add("1 Kings");
+        books.add("2 Kings");
+        books.add("1 Chronicles");
+        books.add("2 Chronicles");
+        books.add("Ezra");
+        books.add("Nehemiah");
+        books.add("Esther");
+        books.add("Job");
+        books.add("Psalms");
+        books.add("Proverbs");
+        books.add("Ecclesiastes");
+        books.add("Song of Solomon");
+        books.add("Isaiah");
+        books.add("Jeremiah");
+        books.add("Lamentations");
+        books.add("Ezekiel");
+        books.add("Daniel");
+        books.add("Hosea");
+        books.add("Joel");
+        books.add("Amos");
+        books.add("Obadiah");
+        books.add("Jonah");
+        books.add("Micah");
+        books.add("Nahum");
+        books.add("Habakkuk");
+        books.add("Zephaniah");
+        books.add("Haggai");
+        books.add("Zechariah");
+        books.add("Malachi");
+
+        // New Testament
+        books.add("Matthew");
+        books.add("Mark");
+        books.add("Luke");
+        books.add("John");
+        books.add("Acts");
+        books.add("Romans");
+        books.add("1 Corinthians");
+        books.add("2 Corinthians");
+        books.add("Galatians");
+        books.add("Ephesians");
+        books.add("Philippians");
+        books.add("Colossians");
+        books.add("1 Thessalonians");
+        books.add("2 Thessalonians");
+        books.add("1 Timothy");
+        books.add("2 Timothy");
+        books.add("Titus");
+        books.add("Philemon");
+        books.add("Hebrews");
+        books.add("James");
+        books.add("1 Peter");
+        books.add("2 Peter");
+        books.add("2 John");
+        books.add("3 John");
+        books.add("Jude");
+        books.add("Revelation");
+
+        // Book of Mormon
+        books.add("Book of Mormon Title Page");
+        books.add("1 Nephi");
+        books.add("2 Nephi");
+        books.add("Jacob");
+        books.add("Enos");
+        books.add("Jarom");
+        books.add("Omni");
+        books.add("Words of Mormon");
+        books.add("Mosiah");
+        books.add("Alma");
+        books.add("Helaman");
+        books.add("3 Nephi");
+        books.add("4 Nephi");
+        books.add("Mormon");
+        books.add("Ether");
+        books.add("Moroni");
+
+        // Doctrine and Covenants
+        books.add("Doctrine and Covenants");
+        books.add("Official Declaration");
+
+        // Pearl of Great Price
+        books.add("Moses");
+        books.add("Abraham");
+        books.add("Joseph Smith—Matthew");
+        books.add("Articles of Faith");
+
+        return books;
     }
 
     private String readZipEntry(ZipInputStream zip) throws IOException {

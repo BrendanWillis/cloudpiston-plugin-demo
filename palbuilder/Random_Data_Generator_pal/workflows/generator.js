@@ -62,6 +62,13 @@ function run(controller)
             
         case "getChart":
             page=c.getPage("D3");
+            
+            var savedChartData = packet.getDataList("chartData");
+            
+            if (savedChartData != null)
+            {
+                payload.addDataList(savedChartData);
+            }
             break;
         
         case "generateChart":
@@ -71,6 +78,11 @@ function run(controller)
         
         case "showchartSearch":
             payload.setValue("fragment", "chartSearch");
+            break;
+        
+        case "showChartSearch":
+            payload.setValue("fragment", "chartSearch");
+            page = c.getPage("main");
             break;
     }
 
@@ -294,4 +306,10 @@ function generateChart()
 
     // Print payload to debug so we can inspect chartData.
     c.debug(payload);
+    
+    var generatedChartData = payload.getDataList("chartData");
+    if (generatedChartData != null)
+    {
+        packet.setDataList(generatedChartData);
+    }
 }

@@ -5,6 +5,7 @@
         <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
+  
 
   <!-- D3 Library -->  
   <c:resource name="d3_min.js" source="d3"/>
@@ -102,16 +103,40 @@
     <body><c:cp-page-body-start/>
         <div id="cp-root">
             <div class="page">
-    <h1>Revenue by Music Format</h1>
-    <p class="subtitle">Stacked revenue by format over time. Sample data included for testing.</p>
+    <h1>Scripture Word Usage Chart</h1>
+    <p class="subtitle">Word frequency across scripture books.</p>
+
+    <c:button class="btn btn-default" value="Back to Chart Search" action="showChartSearch"/>
 
     <div id="chart"></div>
     <div id="legend" class="legend"></div>
 
     <p class="note">
-      Replace the sample data array with your real data later. Each row needs a year, format, and revenue value.
+      Add notes here
     </p>
   </div>
+
+ <h4>Data recieved by D3 page</h4>
+      
+    <table id="chartDataTable">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Usage Count</th>
+            </tr>
+        </thead>
+    
+        <tbody>
+            <c:list name="chartData" id="row">
+                <tr>
+                    <td>${row.bookName}</td>
+                    <td>${row.usageCount}</td>
+                </tr>
+            </c:list>
+        </tbody>
+    </table>
+      
+      <p>Chart record count: ${chartData.recordCount}</p>
 
   <div id="tooltip" class="tooltip"></div>
   
