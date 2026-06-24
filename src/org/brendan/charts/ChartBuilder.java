@@ -42,7 +42,7 @@ public class ChartBuilder {
         HashMap<String, Integer> bookCounts =
                 new HashMap<String, Integer>();
 
-        // Normalize the search word so capitalization and punctuatoin do not affect the search.
+        // Normalize the search word so capitalization and punctuation do not affect the search.
         // Example: "Lord" becomes "lord".
         String normalizedSearchWord = normalizeForSearch(searchWord);
         
@@ -65,7 +65,7 @@ public class ChartBuilder {
                 while ((entry = zip.getNextEntry()) != null) {
 
                     // We only want scripture chapter files.
-                    // Ski anything that is not XHTML.
+                    // Scan anything that is not XHTML.
                     if (!entry.getName().endsWith(".xhtml")) {
                         continue;
                     }
@@ -123,9 +123,6 @@ public class ChartBuilder {
             if (!bookCounts.containsKey(bookName)) {
                 continue;
             }
-            StringBuilder chartJson = new StringBuilder();
-            controller.getPal().set("chartJson", chartJson.toString());
-
             // Create a new row in the DataList.
             PacketDataRecord row = chartData.insertRecord();
 
@@ -157,7 +154,7 @@ public class ChartBuilder {
             //add the new matches to the old total.
             int newCount = currentCount + matches;
 
-            // store the updated toal back into the HashMap.
+            // store the update total back into the HashMap.
             bookCounts.put(bookName, newCount);
         }
 

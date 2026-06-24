@@ -69,6 +69,18 @@ function run(controller)
             {
                 payload.addDataList(savedChartData);
             }
+            
+            var data = request.getData();
+            payload.set("chartSEarchWord", data.get("chartSearchWord"));            
+            
+            var chartState = packet.getDataList("chartState");
+            
+            if (chartState != null && chartState.getRecordCount() > 0)
+            {
+                var stateRecord = chartState.getRecord(0);
+                payload.set("chartSearchWord", stateRecord.getDataValue("chartSearchWord"));
+            }
+            
             break;
         
         case "generateChart":
@@ -263,15 +275,19 @@ function downloadList()
     return response;
 }
 
-function testChart ()
-{
-    return getChart;
-}
-
 function generateChart()
 {
     // Get the data the user typed into the PAL page.
     var chartData = request.getData();
+    
+    var chartState =c.createDataList("chartState", [
+    "chartSearchWord"
+    ]);
+    
+    var stateRecord = chartState.insertRecord();
+    stateRecord.setDataValue("chartSearchWord", chartData.get("chartSearchWord"));
+    
+    packet.setDataList(chartState);
 
     // Tell Brendan.java to route this request to ChartBuilder.
     payload.set("module", "charts");
@@ -279,7 +295,7 @@ function generateChart()
     // Send the searched word to Java.
     // This key must match Brendan.java: payload.get("chartSearchWord")
     payload.set("chartSearchWord", chartData.get("chartSearchWord"));
-
+    
     // Get the Java plugin socket.
     var chartPlugin = pal.getPluginSocket("Brendan");
 
