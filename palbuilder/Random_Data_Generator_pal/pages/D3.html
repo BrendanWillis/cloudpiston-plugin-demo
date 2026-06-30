@@ -59,18 +59,19 @@
       stroke: #ccc;
     }
 
-    .tooltip {
-      position: absolute;
-      pointer-events: none;
-      background: rgba(30, 30, 30, 0.92);
-      color: white;
-      padding: 8px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      line-height: 1.35;
-      opacity: 0;
-      transition: opacity 0.12s ease;
-    }
+   .tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.4;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        z-index: 9999;
+}
 
     .legend {
       display: flex;
@@ -104,16 +105,19 @@
         <div id="cp-root">
             <div class="page">
     <h1>Scripture Word Usage Chart</h1>
-    <p class="subtitle">Word frequency across scripture books. Results for: <strong>${chartSearchWord}</strong></p>
-
+    <p class="subtitle">${chartResultsLabel}</p>
+    <p class="subtitle">Mode: <strong>${chartSearchModeLabel}</strong></p>
     <c:button class="btn btn-default" value="Back to Chart Search" action="showChartSearch"/>
+    
+    <div id="chartMeta" data-word="${chartSearchWord}" data-mode="${chartSearchMode}" data-mode-label="${chartSearchModeLabel}">
+     </div>
 
     <div id="chart"></div>
     <div id="legend" class="legend"></div>
 
     <p class="note">
-      Add notes here
-    </p>
+    Chart shows usage counts based on the selected search mode.    </p>
+    
   </div>
 
  <h4>Data recieved by D3 page</h4>

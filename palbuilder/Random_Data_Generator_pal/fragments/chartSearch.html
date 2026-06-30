@@ -6,13 +6,23 @@
 
     <label>Search Word:</label>
     <input name="chartSearchWord" style="width:200px" type="text" class="form-control" placeholder="e.g. Lord" value="${chartSearchWord}"/>
+   
+    <label for="chartSearchMode">Search Mode:</label>
+
+    <select id="chartSearchMode" name="chartSearchMode" onchange="document.getElementById('generateChartButton').click();">
+        <option value="">-- Select search mode --</option>
+        <option value="verses">Verses only</option>
+        <option value="summaries">Chapter summaries only</option>
+        <option value="both">Verses + chapter summaries</option>
+    </select>
+    <p><strong>${chartResultsLabel}</strong></p>
 
 
     <br/>
-
-    <c:button class="btn btn-warning" value="Generate Chart Data" action="generateChart"/>
     
-    <c:button class="btn btn-info" value="Chart" action="getChart"/>
+    <c:button id="generateChartButton" style="display:none" value="Generate Chart Data" action="generateChart"/>
+
+    <c:button class="btn btn-info" value="View Chart" action="getChart"/>
 
     <c:button class="btn btn-default" value="Back to Generator" action="startOver"/>
 

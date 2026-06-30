@@ -61,27 +61,27 @@ function run(controller)
             return downloadList();
             
         case "getChart":
-            page=c.getPage("D3");
-            
-            var savedChartData = packet.getDataList("chartData");
-            
-            if (savedChartData != null)
-            {
-                payload.addDataList(savedChartData);
-            }
-            
-            var data = request.getData();
-            payload.set("chartSEarchWord", data.get("chartSearchWord"));            
-            
-            var chartState = packet.getDataList("chartState");
-            
-            if (chartState != null && chartState.getRecordCount() > 0)
-            {
-                var stateRecord = chartState.getRecord(0);
-                payload.set("chartSearchWord", stateRecord.getDataValue("chartSearchWord"));
-            }
-            
-            break;
+        page = c.getPage("D3");
+    
+        var savedChartData = packet.getDataList("chartData");
+    
+        if (savedChartData != null)
+        {
+            payload.addDataList(savedChartData);
+        }
+    
+        var chartState = packet.getDataList("chartState");
+    
+        if (chartState != null && chartState.getRecordCount() > 0)
+        {
+            var stateRecord = chartState.getRecord(0);
+            payload.set("chartSearchWord", stateRecord.getDataValue("chartSearchWord"));
+            payload.set("chartSearchMode", stateRecord.getDataValue("chartSearchMode"));
+            payload.set("chartSearchModeLabel", stateRecord.getDataValue("chartSearchModeLabel"));
+            payload.set("chartResultsLabel", stateRecord.getDataValue("chartResultsLabel"));
+        }
+    
+        break;
         
         case "generateChart":
             generateChart();
@@ -95,6 +95,11 @@ function run(controller)
         case "showChartSearch":
             payload.setValue("fragment", "chartSearch");
             page = c.getPage("main");
+            break;
+        
+        case "changeChartMode":
+            changeChartMode();
+            payload.setValue("fragment", "chartSearch");
             break;
     }
 
@@ -279,13 +284,33 @@ function generateChart()
 {
     // Get the data the user typed into the PAL page.
     var chartData = request.getData();
+
+    var selectedMode = chartData.get("chartSearchMode");
+    var selectedModeLabel = "No search mode selected";
     
-    var chartState =c.createDataList("chartState", [
-    "chartSearchWord"
+    if (selectedMode == "verses") {
+        selectedModeLabel = "Verses only";
+    } else if (selectedMode == "summaries") {
+        selectedModeLabel = "Chapter summaries only";
+    } else if (selectedMode == "both") {
+        selectedModeLabel = "Verses + chapter summaries";
+    }
+    
+    var resultsLabel =
+            "Current results: \"" + chartData.get("chartSearchWord") + "\" — " + selectedModeLabel;
+    
+    var chartState = c.createDataList("chartState", [
+        "chartSearchWord",
+        "chartSearchMode",
+        "chartSearchModeLabel",
+        "chartResultsLabel"
     ]);
     
     var stateRecord = chartState.insertRecord();
     stateRecord.setDataValue("chartSearchWord", chartData.get("chartSearchWord"));
+    stateRecord.setDataValue("chartSearchMode", selectedMode);
+    stateRecord.setDataValue("chartSearchModeLabel", selectedModeLabel);
+    stateRecord.setDataValue("chartResultsLabel", resultsLabel);
     
     packet.setDataList(chartState);
 
@@ -295,6 +320,10 @@ function generateChart()
     // Send the searched word to Java.
     // This key must match Brendan.java: payload.get("chartSearchWord")
     payload.set("chartSearchWord", chartData.get("chartSearchWord"));
+    payload.set("chartSearchMode", chartData.get("chartSearchMode"));
+    
+    payload.set("chartSearchModeLabel", selectedModeLabel);
+    payload.set("chartResultsLabel", resultsLabel);
     
     // Get the Java plugin socket.
     var chartPlugin = pal.getPluginSocket("Brendan");
@@ -328,4 +357,34 @@ function generateChart()
     {
         packet.setDataList(generatedChartData);
     }
+    
+}
+function changeChartMode()
+{
+    var chartData = request.getData();
+
+    var selectedMode = chartData.get("chartSearchMode");
+    var selectedModeLabel = "No search mode selected";
+
+    if (selectedMode == "verses") {
+        selectedModeLabel = "Verses only";
+    } else if (selectedMode == "summaries") {
+        selectedModeLabel = "Chapter summaries only";
+    } else if (selectedMode == "both") {
+        selectedModeLabel = "Verses + chapter summaries";
+    }
+
+    payload.set("chartSearchWord", chartData.get("chartSearchWord"));
+    payload.set("chartSearchMode", selectedMode);
+    payload.set("chartSearchModeLabel", selectedModeLabel);
+
+    packet.setDataList(c.createDataList("chartData", [
+        "bookName",
+        "usageCount"
+    ]));
+
+    payload.addDataList(packet.getDataList("chartData"));
+
+    payload.set("chartPluginResult", "");
+    payload.set("chartRoundTripTime", "");
 }

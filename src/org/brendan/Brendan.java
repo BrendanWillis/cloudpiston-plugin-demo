@@ -36,8 +36,10 @@ public class Brendan extends Plugin {
 
             payload.addDataList(
 
-            chartBuilder.buildWordUsageChart(payload.get("chartSearchWord"))
-
+                    chartBuilder.buildWordUsageChart(
+                            payload.get("chartSearchWord"),
+                            payload.get("chartSearchMode")
+                    )
             );
 
             return "Chart builder completed.";

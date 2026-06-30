@@ -29,11 +29,18 @@ public class ChartBuilder {
         this.controller = controller;
     }
 
-    public DataList buildWordUsageChart(String searchWord)
+    public DataList buildWordUsageChart(String searchWord, String searchMode)
             throws WorkflowException {
 
         controller.debug("=== CHART BUILDER STARTED ===");
         controller.debug("Search word: " + searchWord);
+
+        // If no search mode is provided, default to verse-only search.
+        if (searchMode == null || searchMode.length() == 0) {
+            searchMode = "verses";
+        }
+
+        controller.debug("Search mode: " + searchMode);
 
         // Create a DataList that will eventually hold chart results.
         // This is created early so we can safely return an empty list if something is wrong.
@@ -104,20 +111,48 @@ public class ChartBuilder {
                 // Read the XHTML file into a String.
                 String fileText = readZipEntry(zip);
 
-                // TEMP DEBUG: inspect Genesis 3 XHTML structure.
-                if (fileName.contains("06897_000_gen_003.xhtml")) {
-                    controller.debug("RAW GENESIS 3 XHTML:");
-                    controller.debug(fileText.substring(0, Math.min(fileText.length(), 3000)));
+                // Separate the chapter summary from the actual scripture verses.
+                String summaryText = extractChapterSummary(fileText);
+                String verseText = extractVerseText(fileText);
+
+                // Clean and normalize the chapter summary.
+                String searchableSummaryText =
+                        normalizeForSearch(cleanHtml(summaryText));
+
+                // Clean and normalize the actual verse text.
+                String searchableVerseText =
+                        normalizeForSearch(cleanHtml(verseText));
+
+                // Count matches separately so we can tell whether a word came from
+                // the scripture verses or from the chapter summary.
+                int summaryMatches =
+                        countMatches(searchableSummaryText, normalizedSearchWord);
+
+                int verseMatches =
+                        countMatches(searchableVerseText, normalizedSearchWord);
+
+                // Decide which text source should be used for the chart.
+                int matches;
+                String searchableText;
+
+                if ("summaries".equals(searchMode)) {
+
+                    // Search only the chapter summaries.
+                    matches = summaryMatches;
+                    searchableText = searchableSummaryText;
+
+                } else if ("both".equals(searchMode)) {
+
+                    // Search both scripture verses and chapter summaries.
+                    matches = verseMatches + summaryMatches;
+                    searchableText = searchableVerseText + " " + searchableSummaryText;
+
+                } else {
+
+                    // Default: search only the actual scripture verses.
+                    matches = verseMatches;
+                    searchableText = searchableVerseText;
                 }
-
-                // Remove HTML tags so we can only search scripture text.
-                String plainText = cleanHtml(fileText);
-
-                // Normalize the scripture text for searching.
-                String searchableText = normalizeForSearch(plainText);
-
-                // Count how many times the search word appears in this file.
-                int matches = countMatches(searchableText, normalizedSearchWord);
 
                 // Get the book name from the filename.
                 String bookName = getBookNameFromFilename(fileName);
@@ -125,30 +160,6 @@ public class ChartBuilder {
                 // If there are no matches, do not add anything to the chart data.
                 if (matches == 0) {
                     continue;
-                }
-
-                // Debug why Genesis contains this search word.
-                if ("Genesis".equals(bookName)) {
-
-                    controller.debug(
-                            "========== GENESIS DEBUG =========="
-                                    + "\nFile: " + fileName
-                                    + "\nMatches: " + matches
-                                    + "\nSearch Word: " + normalizedSearchWord
-                                    + "\nSnippet:"
-                                    + "\n" + makeSnippet(searchableText, normalizedSearchWord)
-                    );
-                }
-                String summaryDebug = cleanHtml(extractChapterSummary(fileText));
-
-                if (fileName.contains("06897_000_gen_003.xhtml")) {
-                    controller.debug("GENESIS 3 SUMMARY ONLY:\n" + summaryDebug);
-                }
-
-                String verseDebug = cleanHtml(extractVerseText(fileText));
-
-                if (fileName.contains("06897_000_gen_003.xhtml")) {
-                    controller.debug("GENESIS 3 VERSES ONLY:\n" + verseDebug.substring(0, Math.min(verseDebug.length(), 500)));
                 }
 
                 // Add this file's matches to the running total for that book.
